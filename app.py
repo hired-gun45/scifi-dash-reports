@@ -8,8 +8,7 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 import data
-
-#table = []
+import pytz
 
 def load_table():
     df = dash_table.DataTable(table)
@@ -130,7 +129,9 @@ def update_line_chart(value, interval):
     # change the timestamp into just hh:mm string
     for index in range(0,len(df)): 
         dt_object = datetime.fromtimestamp(df.iat[index,1])
-        date_time = dt_object.strftime("%H:%M")
+        utc_dt = dt_object.astimezone(pytz.utc)
+        localDatetime = utc_dt.astimezone(pytz.timezone('US/Eastern'))
+        date_time = localDatetime.strftime("%H:%M")
         df.iat[index,1] = date_time
 
     print("got data for " + date)
