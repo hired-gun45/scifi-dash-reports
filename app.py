@@ -28,7 +28,7 @@ def load_data(date):
     open_prices = df.query("`Time` == @t.T and `Datatype` == 'calculated_open_price'")
     close_prices = df.query("`Time` == @t.T and `Datatype` == 'calculated_close_price'")
 
-    df = df.query("Datatype == 'calculated_current_price'")
+    df = df.query("Datatype == 'calculated_pnl'")
     df = df.drop(['Datatype'], axis=1)
     df = df.drop(['Portfolio'], axis=1)
     df.reindex()
@@ -120,12 +120,13 @@ app.layout = dbc.Container([
     Input(component_id="interval-component", component_property="n_intervals"))
 
 def update_line_chart(value, interval):
-#def update_line_chart(value):
     date = value[:4] + value[5:7] + value[8:10]
     print("about to load data for ", date)
     df = None
-    col_names = None
+    #col_names = None
     df, col_names, status, table = load_data(date)   
+    if len(df) == 0:
+        return {}, status, table
     # change the timestamp into just hh:mm string
     for index in range(0,len(df)): 
         dt_object = datetime.fromtimestamp(df.iat[index,1])
@@ -136,8 +137,6 @@ def update_line_chart(value, interval):
 
     print("got data for " + date)
     print(df)
-    if len(df) == 0:
-        return {}, status, table
     fig = px.line(df, x="Time", y=col_names, 
             title= "Bob\'s Cool Line Graph")
     fig.update_traces()
